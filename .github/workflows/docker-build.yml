@@ -35,3 +35,38 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/vvv-admin
+
+      - name: Add SSH Key
+        run: |
+          echo "${{ secrets.SSH_PEM_KEY }}" > deploy_key.pem
+          chmod 600 deploy_key.pem
+          
+      - name: Deploy via Docker Compose
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_ADDRESS }}
+          username: ${{ secrets.SERVER_USER }}
+          key_path: deploy_key.pem
+          script_stop: true
+          script: |
+            # 检查并安装 Docker Compose（如果未安装）
+            if ! command -v docker-compose &> /dev/null; then
+              echo "Docker Compose not found, installing..."
+              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
+            fi
+
+            # 进入项目目录
+            cd /data/dockerCompose/vvv-admin
+
+            # 拉取最新的 Docker 镜像
+            docker-compose pull
+
+            # 停止并移除旧的容器
+            docker-compose down
+
+            # 启动新的容器
+            docker-compose up -d
+
+      - name: Cleanup
+        run: rm -f deploy_key.pem
