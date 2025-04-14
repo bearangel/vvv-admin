@@ -28,7 +28,7 @@
 
             <template #title>
               <h2 class="text-h5 font-weight-bold">
-                Get started
+                Get started--auto build test
               </h2>
             </template>
 
