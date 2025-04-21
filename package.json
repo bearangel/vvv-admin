@@ -5,6 +5,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
+    "dev:supabase": "vite --mode supabase",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
@@ -14,6 +15,7 @@
   },
   "dependencies": {
     "@mdi/font": "7.4.47",
+    "@supabase/supabase-js": "^2.39.7",
     "inversify": "^7.0.0-alpha.5",
     "pinia": "^3.0.2",
     "pinia-plugin-persistedstate": "^4.2.0",

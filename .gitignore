@@ -1,5 +1,7 @@
 # idea
 .idea
+.env
+.env.*
 
 # Logs
 logs

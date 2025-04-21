@@ -7,6 +7,7 @@
 // Plugins
 import vuetify from './vuetify'
 import router from '../router'
+import loginService from './loginService'
 
 // Types
 import type { App } from 'vue'
@@ -20,4 +21,7 @@ export function registerPlugins (app: App) {
     .use(vuetify)
     .use(router)
     .use(pinia)
+
+  // Register login service
+  loginService(app)
 }

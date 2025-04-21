@@ -18,7 +18,18 @@ jobs:
           node-version: 22
 
       - name: Install dependencies and build
+        env:
+          VITE_SERVICE_TYPE: ${{ secrets.VITE_SERVICE_TYPE }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_KEY }}
         run: |
+          # Create .env file with GitHub secrets
+          echo "VITE_SERVICE_TYPE=${VITE_SERVICE_TYPE}" >> .env
+          echo "" >> .env
+          echo "VITE_SUPABASE_URL=${VITE_SUPABASE_URL}" >> .env
+          echo "VITE_SUPABASE_KEY=${VITE_SUPABASE_KEY}" >> .env
+
+          # Install dependencies and build
           npm install
           npm run build
 
@@ -40,7 +51,7 @@ jobs:
         run: |
           echo "${{ secrets.SSH_PEM_KEY }}" > deploy_key.pem
           chmod 600 deploy_key.pem
-          
+
       - name: Deploy via Docker Compose
         uses: appleboy/ssh-action@master
         with:
