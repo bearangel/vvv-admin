@@ -7,6 +7,7 @@
 // Composables
 import { createRouter, createWebHistory } from 'vue-router/auto'
 import { routes } from 'vue-router/auto-routes'
+import { loginContextStore } from '@/stores/loginContextStore'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -25,6 +26,21 @@ router.onError((err, to) => {
     }
   } else {
     console.error(err)
+  }
+})
+
+// Navigation guard to check if user is logged in
+router.beforeEach((to, from, next) => {
+  const store = loginContextStore()
+  console.log(sessionStorage.getItem('loginContent'))
+
+  // If the user is not logged in and trying to access a page other than login
+  if (!store.loginContext && to.path !== '/login') {
+    // Redirect to login page
+    next('/login')
+  } else {
+    // Continue navigation
+    next()
   }
 })
 

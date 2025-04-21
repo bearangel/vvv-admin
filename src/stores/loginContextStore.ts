@@ -6,7 +6,6 @@ export const loginContextStore = defineStore("loginContent", {
     loginContext: null
   }),
   persist: {
-    key: "loginContent",
     storage: sessionStorage
   },
   actions: {

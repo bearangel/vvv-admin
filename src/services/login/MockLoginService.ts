@@ -75,9 +75,9 @@ export class MockLoginService implements ILoginService {
     // 令牌类型
     const tokenType = 'Bearer';
     // 令牌有效期（1小时）
-    const expiresIn = BigInt(3600);
+    const expiresIn = 3600;
     // 过期时间（当前时间 + 有效期）
-    const expiresAt = BigInt(Math.floor(Date.now() / 1000) + Number(expiresIn));
+    const expiresAt = Math.floor(Date.now() / 1000) + Number(expiresIn);
     // 刷新令牌
     const refreshToken = `mock_refresh_${user.userId}_${Date.now()}`;
 

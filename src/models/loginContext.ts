@@ -5,9 +5,9 @@ export class LoginContext {
     // 令牌类型
     public readonly tokenType: string,
     // 访问令牌（AccessToken）的有效期，单位是秒。
-    public readonly expiresIn: bigint,
+    public readonly expiresIn: number,
     // Unix 时间戳, 表示访问令牌的绝对过期时间,
-    public readonly expiresAt: bigint,
+    public readonly expiresAt: number,
     // 用于在访问令牌过期后获取新的访问令牌的令牌。
     public readonly refreshToken: string,
     // 登录用户信息

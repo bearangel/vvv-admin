@@ -18,9 +18,9 @@ export function registerPlugins (app: App) {
   const pinia = createPinia()
   pinia.use(piniaPluginPersistedstate)
   app
+    .use(pinia)
     .use(vuetify)
     .use(router)
-    .use(pinia)
 
   // Register login service
   loginService(app)

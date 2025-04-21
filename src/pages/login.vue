@@ -92,9 +92,8 @@ const handleLogin = async () => {
       // Store the login context in the store
       const store = loginContextStore();
       store.setLoginContext(loginContext);
-
       // Navigate to dashboard or home page after login
-      router.push('/dashboard');
+      router.push('/home');
     } else {
       // Show error message
       alert('登录失败：用户名或密码错误');

@@ -75,8 +75,8 @@ export class SupabaseLoginService implements ILoginService {
       return new LoginContext(
         data.session.access_token,
         'Bearer',
-        BigInt(data.session.expires_in || 3600),
-        BigInt(Math.floor(new Date(data.session.expires_at || Date.now() + 3600000).getTime() / 1000)),
+        data.session.expires_in || 3600,
+        Math.floor(new Date(data.session.expires_at || Date.now() + 3600000).getTime() / 1000),
         data.session.refresh_token || '',
         loginUser
       );
