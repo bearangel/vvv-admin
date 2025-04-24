@@ -1,7 +1,7 @@
 // inversifyDecorators.test.ts
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Bean, SingletonBean, Singleton, NamedBean, NamedSingletonBean } from './inversifyDecorators';
-import { InversifyUtils } from './inversifyUtils';
+import { Bean, SingletonBean, Singleton, NamedBean, NamedSingletonBean } from '../../../src/lib/inversify/inversifyDecorators';
+import { InversifyUtils } from '../../../src/lib/inversify/inversifyUtils';
 import { Container } from 'inversify';
 import 'reflect-metadata';
 

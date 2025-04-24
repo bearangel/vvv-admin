@@ -1,6 +1,6 @@
 // inversifyUtils.test.ts
 import { beforeEach, describe, expect, it } from 'vitest';
-import { createServiceIdentifier, InversifyUtils } from './inversifyUtils';
+import { createServiceIdentifier, InversifyUtils } from '../../../src/lib/inversify/inversifyUtils';
 import { Container } from 'inversify';
 
 describe('InversifyUtils', () => {
