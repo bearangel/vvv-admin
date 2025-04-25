@@ -1,6 +1,51 @@
 <template>
   <div class="login-container">
-    <v-card class="login-form-container" elevation="8">
+    <!-- 顶部工具栏 -->
+    <div class="top-toolbar">
+      <!-- 主题切换按钮 -->
+      <div class="theme-selector">
+        <v-btn icon size="small" @click="toggleTheme">
+          <v-icon>{{ isDark ? 'mdi-white-balance-sunny' : 'mdi-moon-waning-crescent' }}</v-icon>
+        </v-btn>
+      </div>
+
+      <!-- 语言切换按钮 -->
+      <div class="language-selector">
+        <v-menu location="bottom">
+          <template v-slot:activator="{ props }">
+            <v-btn icon v-bind="props" size="small">
+              <v-icon>mdi-translate</v-icon>
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item
+              @click="changeLanguage('zh-CN')"
+              :active="currentLanguage === 'zh-CN'"
+            >
+              <v-list-item-title>简体中文</v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              @click="changeLanguage('zh-TW')"
+              :active="currentLanguage === 'zh-TW'"
+            >
+              <v-list-item-title>繁體中文</v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              @click="changeLanguage('en-US')"
+              :active="currentLanguage === 'en-US'"
+            >
+              <v-list-item-title>English</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </div>
+    </div>
+
+    <v-card
+      class="login-form-container"
+      elevation="8"
+      :style="{ backgroundColor: formBackgroundColor }"
+    >
       <div class="login-logo">
         <img src="@/assets/logo.svg" alt="Logo" height="60" />
       </div>
@@ -9,23 +54,23 @@
           <v-text-field
             v-model="username"
             :rules="usernameRules"
-            label="账号"
+            :label="t('login.username')"
             prepend-icon="mdi-account"
             required
-            theme="dark"
+            :theme="currentTheme"
             class="input-field"
           ></v-text-field>
 
           <v-text-field
             v-model="password"
             :rules="passwordRules"
-            label="密码"
+            :label="t('login.password')"
             prepend-icon="mdi-lock"
             :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
             :type="showPassword ? 'text' : 'password'"
             @click:append-inner="showPassword = !showPassword"
             required
-            theme="dark"
+            :theme="currentTheme"
             class="input-field password-field"
           ></v-text-field>
 
@@ -36,7 +81,7 @@
               :disabled="!valid"
               :loading="loading"
             >
-              登录
+              {{ t('login.loginButton') }}
             </v-btn>
           </div>
         </v-form>
@@ -46,10 +91,40 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { loginContextStore } from '@/stores/loginContextStore';
 import { loginServiceProvider } from '@/services/login';
+import { useLanguageStore } from '@/stores/languageStore';
+import { useThemeStore } from '@/stores/themeStore';
+
+// i18n
+const { t } = useI18n();
+
+// 语言设置
+const languageStore = useLanguageStore();
+const currentLanguage = computed(() => languageStore.language);
+
+// 主题设置
+const themeStore = useThemeStore();
+const currentTheme = computed(() => themeStore.currentTheme);
+const isDark = computed(() => themeStore.isDark);
+
+// 根据主题计算表单背景色
+const formBackgroundColor = computed(() =>
+  isDark.value ? 'rgba(40, 40, 40, 0.8)' : 'rgba(255, 255, 255, 0.8)'
+);
+
+// 切换语言
+const changeLanguage = (lang: string) => {
+  languageStore.setLanguage(lang);
+};
+
+// 切换主题
+const toggleTheme = () => {
+  themeStore.toggleTheme();
+};
 
 // Form validation
 const valid = ref(false);
@@ -63,13 +138,13 @@ const password = ref('');
 
 // Validation rules
 const usernameRules = [
-  (v: string) => !!v || '请输入账号',
-  (v: string) => v.length >= 3 || '账号长度不能少于3个字符'
+  (v: string) => !!v || t('login.usernameRequired'),
+  (v: string) => v.length >= 3 || t('login.usernameLength')
 ];
 
 const passwordRules = [
-  (v: string) => !!v || '请输入密码',
-  (v: string) => v.length >= 6 || '密码长度不能少于6个字符'
+  (v: string) => !!v || t('login.passwordRequired'),
+  (v: string) => v.length >= 6 || t('login.passwordLength')
 ];
 
 // Get router instance
@@ -96,11 +171,11 @@ const handleLogin = async () => {
       router.push('/home');
     } else {
       // Show error message
-      alert('登录失败：用户名或密码错误');
+      alert(t('login.loginFailed') + t('login.incorrectCredentials'));
     }
   } catch (error) {
     console.error('Login failed:', error);
-    alert('登录失败：' + (error instanceof Error ? error.message : '未知错误'));
+    alert(t('login.loginFailed') + (error instanceof Error ? error.message : t('common.unknownError')));
   } finally {
     loading.value = false;
   }
@@ -122,7 +197,6 @@ const handleLogin = async () => {
 .login-form-container {
   width: 400px;
   padding: 40px;
-  background-color: rgba(40, 40, 40, 0.8); /* Dark background with 80% opacity */
   border-radius: 8px;
 }
 
@@ -142,5 +216,20 @@ const handleLogin = async () => {
 
 .password-field :deep(.v-field__append-inner button) {
   opacity: 0.7;
+}
+
+.top-toolbar {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  display: flex;
+  gap: 10px;
+}
+
+.theme-selector,
+.language-selector {
+  padding: 5px;
+  border-radius: 4px;
 }
 </style>

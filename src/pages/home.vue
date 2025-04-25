@@ -13,7 +13,7 @@
         v-for="(item, i) in menuItems"
         :key="i"
         :value="item"
-        :title="item.title"
+        :title="t(item.titleKey)"
         :prepend-icon="item.icon"
       ></v-list-item>
     </v-list>
@@ -30,10 +30,37 @@
     <v-btn icon @click="toggleTheme">
       <v-icon>{{ themeStore.isDark ? 'mdi-weather-night' : 'mdi-weather-sunny' }}</v-icon>
     </v-btn>
-    <!-- 国际化按钮 -->
-    <v-btn icon @click="toggleLanguage">
-      <v-icon>mdi-translate</v-icon>
-    </v-btn>
+    <!-- 国际化下拉菜单 -->
+    <v-menu
+      v-model="languageMenu"
+      location="bottom"
+    >
+      <template v-slot:activator="{ props }">
+        <v-btn icon v-bind="props">
+          <v-icon>mdi-translate</v-icon>
+        </v-btn>
+      </template>
+      <v-list>
+        <v-list-item
+          @click="changeLanguage('zh-CN')"
+          :active="currentLanguage === 'zh-CN'"
+        >
+          <v-list-item-title>简体中文</v-list-item-title>
+        </v-list-item>
+        <v-list-item
+          @click="changeLanguage('zh-TW')"
+          :active="currentLanguage === 'zh-TW'"
+        >
+          <v-list-item-title>繁體中文</v-list-item-title>
+        </v-list-item>
+        <v-list-item
+          @click="changeLanguage('en-US')"
+          :active="currentLanguage === 'en-US'"
+        >
+          <v-list-item-title>English</v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-menu>
     <!-- 全屏按钮 -->
     <v-btn icon @click="toggleFullscreen">
       <v-icon>mdi-fullscreen</v-icon>
@@ -51,23 +78,33 @@
   <!-- 右侧功能区 -->
   <v-main class="fill-height pa-0">
     <v-card class="fill-height rounded-0">
-      <v-card-title>欢迎使用 VVV Admin</v-card-title>
+      <v-card-title>{{ t('common.welcome') }}</v-card-title>
       <v-card-text>
-        <p>这是主页内容区域，您可以在这里添加您的应用功能。</p>
+        <p>{{ t('common.mainContent') }}</p>
       </v-card-text>
     </v-card>
   </v-main>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useLanguageStore } from '@/stores/languageStore';
+
+// i18n
+const { t } = useI18n();
+
+// 语言设置
+const languageStore = useLanguageStore();
+const currentLanguage = computed(() => languageStore.language);
+const currentLanguageName = computed(() => languageStore.languageName);
 
 // 菜单项数据
 const menuItems = [
-  {title: '仪表盘', icon: 'mdi-view-dashboard'},
-  {title: '用户管理', icon: 'mdi-account-group'},
-  {title: '设置', icon: 'mdi-cog'},
-  {title: '帮助', icon: 'mdi-help-circle'},
+  {titleKey: 'home.menu.dashboard', icon: 'mdi-view-dashboard'},
+  {titleKey: 'home.menu.userManagement', icon: 'mdi-account-group'},
+  {titleKey: 'home.menu.settings', icon: 'mdi-cog'},
+  {titleKey: 'home.menu.help', icon: 'mdi-help-circle'},
 ];
 
 // 主题切换
@@ -81,7 +118,7 @@ const toggleTheme = () => {
 const toggleFullscreen = () => {
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen().catch(err => {
-      console.error(`全屏错误: ${err.message}`);
+      console.error(`${t('home.fullscreenError')}: ${err.message}`);
     });
   } else {
     if (document.exitFullscreen) {
@@ -96,9 +133,12 @@ const openSettings = () => {
 };
 
 // 切换语言
-const toggleLanguage = () => {
-  console.log('切换语言');
+const changeLanguage = (lang: string) => {
+  languageStore.setLanguage(lang);
 };
+
+// 语言菜单控制
+const languageMenu = ref(false);
 
 // 打开通知
 const openNotifications = () => {
