@@ -85,4 +85,41 @@ export class SupabaseLoginService implements ILoginService {
       return null;
     }
   }
+
+  /**
+   * 修改用户密码
+   * @param email 用户邮箱
+   * @param currentPassword 当前密码
+   * @param newPassword 新密码
+   * @returns 是否成功修改密码
+   */
+  async changePassword(email: string, currentPassword: string, newPassword: string): Promise<boolean> {
+    try {
+      // 使用当前密码进行验证
+      const { error: signInError } = await this.supabase.auth.signInWithPassword({
+        email,
+        password: currentPassword
+      });
+
+      if (signInError) {
+        console.error('验证当前密码失败:', signInError);
+        return false;
+      }
+
+      // 更新密码
+      const { error: updateError } = await this.supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (updateError) {
+        console.error('更新密码失败:', updateError);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('修改密码异常:', error);
+      return false;
+    }
+  }
 }

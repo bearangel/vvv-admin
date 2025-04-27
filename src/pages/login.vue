@@ -59,6 +59,7 @@
             required
             :theme="currentTheme"
             class="input-field"
+            variant="underlined"
           ></v-text-field>
 
           <v-text-field
@@ -72,6 +73,7 @@
             required
             :theme="currentTheme"
             class="input-field password-field"
+            variant="underlined"
           ></v-text-field>
 
           <div class="d-flex justify-end mt-4">

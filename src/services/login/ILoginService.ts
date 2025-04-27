@@ -14,6 +14,15 @@ export interface ILoginService {
    * @returns 登录上下文，如果登录失败则返回null
    */
   loginWithEmail(email: string, password: string): Promise<import("@/models/loginContext").LoginContext | null>;
+
+  /**
+   * 修改用户密码
+   * @param email 用户邮箱
+   * @param currentPassword 当前密码
+   * @param newPassword 新密码
+   * @returns 是否成功修改密码
+   */
+  changePassword(email: string, currentPassword: string, newPassword: string): Promise<boolean>;
 }
 
 // 创建服务标识符

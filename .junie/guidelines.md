@@ -24,7 +24,13 @@ vvv-admin是一个基于vue项目，使用typescript作为项目开发语言，�
     - `models/` - 数据模型定义
     - `locales/` - 国际化文件
 
-## 要求
+## 研发要求
 1、所有代码注释请尽量使用中文， 如果存在一些无法翻译专有名词，比如项目名称等则无需翻译
-2、在代码中所有所有提示都不需要使用国际化组件，注意在根据vue-i18n在typescript支持说中要求api`$t`需要用`t`替代
+2、在代码中所有需要显示的文本内容都需要使用国际化组件，注意在根据vue-i18n在typescript支持说中要求api`$t`需要用`t`替代
 3、代码中所有提示信息默认使用简体中文。并且在国际化配置中提及简体中文、繁体中文、英文三份配置
+4、所有服务层都应该提供Mock实现和Supabase实现。
+
+## vuetify UI规范
+1、输入框variant属性，如无特殊要求，默认使用underlined
+2、输入框图标，如无特殊要求，前图标使用append-icon，后图标使用prepend-inner-icon
+3、所有提示信息，如果没有特殊要求，请使用v-snackbar，并且设置location="top right"

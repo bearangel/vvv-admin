@@ -65,6 +65,27 @@ export class MockLoginService implements ILoginService {
   }
 
   /**
+   * 修改用户密码
+   * @param email 用户邮箱
+   * @param currentPassword 当前密码
+   * @param newPassword 新密码
+   * @returns 是否成功修改密码
+   */
+  async changePassword(email: string, currentPassword: string, newPassword: string): Promise<boolean> {
+    // 查找匹配的用户
+    const userIndex = this.users.findIndex(u => u.email === email && u.password === currentPassword);
+
+    if (userIndex === -1) {
+      return false;
+    }
+
+    // 更新密码
+    this.users[userIndex].password = newPassword;
+
+    return true;
+  }
+
+  /**
    * 创建登录上下文
    * @param user 用户信息
    * @returns 登录上下文
