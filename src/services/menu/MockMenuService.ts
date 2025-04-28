@@ -73,7 +73,18 @@ export class MockMenuService implements IMenuService {
 
     // 生成新的ID（如果没有提供）
     if (!menu.id) {
-      menu = { ...menu, id: uuidv4() };
+      menu = new Menu(
+        uuidv4(), // gid
+        menu.tenantId,
+        uuidv4(), // id
+        menu.name,
+        menu.icon,
+        menu.path,
+        menu.order,
+        menu.parentId,
+        menu.i18nKey,
+        menu.children
+      );
     }
 
     // 存储菜单
