@@ -3,20 +3,49 @@
   <v-navigation-drawer class="fill-height">
     <!-- 系统logo和名称 -->
     <div class="d-flex align-center logo-container">
-      <img src="@/assets/logo.svg" alt="Logo" height="32" class="mr-2" />
+      <img src="../assets/logo.svg" alt="Logo" height="32" class="mr-2" />
       <h2>VVV Admin</h2>
     </div>
 
     <!-- 菜单列表 -->
     <v-list>
-      <v-list-item
-        v-for="(item, i) in menuItems"
-        :key="i"
-        :value="item"
-        :title="t(item.titleKey)"
-        :prepend-icon="item.icon"
-      ></v-list-item>
+      <template v-for="(item, i) in menuItems" :key="i">
+        <!-- 如果有子菜单，使用v-list-group -->
+        <v-list-group v-if="item.children && item.children.length" :value="item.id">
+          <template v-slot:activator="{ props }">
+            <v-list-item
+              v-bind="props"
+              :value="item"
+              :title="t(item.titleKey)"
+              :prepend-icon="item.icon"
+            ></v-list-item>
+          </template>
+
+          <v-list-item
+            v-for="(child, j) in item.children"
+            :key="j"
+            :value="child"
+            :title="t(child.titleKey)"
+            :prepend-icon="child.icon"
+            :to="child.path"
+          ></v-list-item>
+        </v-list-group>
+
+        <!-- 如果没有子菜单，使用v-list-item -->
+        <v-list-item
+          v-else
+          :value="item"
+          :title="t(item.titleKey)"
+          :prepend-icon="item.icon"
+          :to="item.path"
+        ></v-list-item>
+      </template>
     </v-list>
+
+    <!-- 加载中状态 -->
+    <div v-if="menuLoading" class="d-flex justify-center align-center pa-4">
+      <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    </div>
   </v-navigation-drawer>
 
   <!-- 顶部工具条 -->
@@ -118,12 +147,7 @@
 
   <!-- 右侧功能区 -->
   <v-main class="fill-height pa-0">
-    <v-card class="fill-height rounded-0">
-      <v-card-title>{{ t('common.welcome') }}</v-card-title>
-      <v-card-text>
-        <p>{{ t('common.mainContent') }}</p>
-      </v-card-text>
-    </v-card>
+    <router-view />
   </v-main>
 
   <!-- 密码修改对话框 -->
@@ -203,10 +227,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useLanguageStore } from '@/stores/languageStore';
-import { loginContextStore } from '@/stores/loginContextStore';
+import { useLanguageStore } from '@/stores/languageStore.ts';
+import { loginContextStore } from '@/stores/loginContextStore.ts';
 import { useRouter } from 'vue-router';
 import { loginServiceProvider } from '@/services/login';
 import DefaultAvatar from '@/components/DefaultAvatar.vue';
@@ -244,15 +268,52 @@ const snackbarText = ref('');
 const snackbarColor = ref('success');
 
 // 菜单项数据
-const menuItems = [
-  {titleKey: 'home.menu.dashboard', icon: 'mdi-view-dashboard'},
-  {titleKey: 'home.menu.userManagement', icon: 'mdi-account-group'},
-  {titleKey: 'home.menu.settings', icon: 'mdi-cog'},
-  {titleKey: 'home.menu.help', icon: 'mdi-help-circle'},
-];
+const menuItems = ref<any[]>([]);
+const menuLoading = ref(true);
+
+// 从服务加载菜单数据
+async function loadMenuData() {
+  menuLoading.value = true;
+  try {
+    const { menuServiceProvider } = await import('@/services/menu');
+    const menuService = menuServiceProvider.getMenuService();
+    const tenantId = 'default';
+    const menus = await menuService.getAllMenus(tenantId);
+
+    // 转换为菜单项格式
+    menuItems.value = menus.map(menu => ({
+      id: menu.id,
+      titleKey: menu.i18nKey,
+      icon: menu.icon,
+      path: menu.path,
+      children: menu.children.map(child => ({
+        id: child.id,
+        titleKey: child.i18nKey,
+        icon: child.icon,
+        path: child.path
+      }))
+    }));
+  } catch (error) {
+    console.error('加载菜单失败:', error);
+    // 使用默认菜单作为回退
+    menuItems.value = [
+      {titleKey: 'home.menu.dashboard', icon: 'mdi-view-dashboard'},
+      {titleKey: 'home.menu.userManagement', icon: 'mdi-account-group'},
+      {titleKey: 'home.menu.settings', icon: 'mdi-cog'},
+      {titleKey: 'home.menu.help', icon: 'mdi-help-circle'},
+    ];
+  } finally {
+    menuLoading.value = false;
+  }
+}
+
+// 初始化时加载菜单
+onMounted(() => {
+  loadMenuData();
+});
 
 // 主题切换
-import { useThemeStore } from '@/stores/themeStore';
+import { useThemeStore } from '@/stores/themeStore.ts';
 const themeStore = useThemeStore();
 const toggleTheme = () => {
   themeStore.toggleTheme();
